@@ -30,7 +30,7 @@
      */
     protected $routeMiddleware = [
         ...
-        'mmda' => ProviderDetectorMiddleware::class,
+        'mmda' => \Jsdecena\LPM\Middleware\ProviderDetectorMiddleware::class,
     ];
 ```
 
@@ -63,94 +63,132 @@
     ],
 ```
 
+- Your `Customer` model should extend with `Authenticatable` and use the `Notifiable` and `HasApiTokens` traits
+
+```
+<?php
+
+namespace App;
+
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Passport\HasApiTokens;
+
+class Customer extends Authenticatable
+{
+    use Notifiable, HasApiTokens;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+    ];
+
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+}
+```
+
+> Note that you need the `Customer` model or any model that you need to authenticate with.
+
 - And in your controller: `App\Http\Controllers\Auth\CustomerTokenAuthController.php`
  
- ```
- <?php
- 
- namespace App\Http\Controllers\Auth;
- 
- use App\Customers\Customer;
- use App\Customers\Exceptions\CustomerNotFoundException;
- use Illuminate\Database\QueryException;
- use Laravel\Passport\Http\Controllers\AccessTokenController;
- use Laravel\Passport\TokenRepository;
- use League\OAuth2\Server\AuthorizationServer;
- use Psr\Http\Message\ServerRequestInterface;
- use Lcobucci\JWT\Parser as JwtParser;
- 
- class CustomerTokenAuthController extends AccessTokenController
+```
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Customers\Customer;
+use App\Customers\Exceptions\CustomerNotFoundException;
+use Illuminate\Database\QueryException;
+use Laravel\Passport\Http\Controllers\AccessTokenController;
+use Laravel\Passport\TokenRepository;
+use League\OAuth2\Server\AuthorizationServer;
+use Psr\Http\Message\ServerRequestInterface;
+use Lcobucci\JWT\Parser as JwtParser;
+
+class CustomerTokenAuthController extends AccessTokenController
+{
+ /**
+  * The authorization server.
+  *
+  * @var \League\OAuth2\Server\AuthorizationServer
+  */
+ protected $server;
+
+ /**
+  * The token repository instance.
+  *
+  * @var \Laravel\Passport\TokenRepository
+  */
+ protected $tokens;
+
+ /**
+  * The JWT parser instance.
+  *
+  * @var \Lcobucci\JWT\Parser
+  */
+ protected $jwt;
+
+ /**
+  * Create a new controller instance.
+  *
+  * @param  \League\OAuth2\Server\AuthorizationServer  $server
+  * @param  \Laravel\Passport\TokenRepository  $tokens
+  * @param  \Lcobucci\JWT\Parser  $jwt
+  */
+ public function __construct(AuthorizationServer $server,
+                             TokenRepository $tokens,
+                             JwtParser $jwt)
  {
-     /**
-      * The authorization server.
-      *
-      * @var \League\OAuth2\Server\AuthorizationServer
-      */
-     protected $server;
- 
-     /**
-      * The token repository instance.
-      *
-      * @var \Laravel\Passport\TokenRepository
-      */
-     protected $tokens;
- 
-     /**
-      * The JWT parser instance.
-      *
-      * @var \Lcobucci\JWT\Parser
-      */
-     protected $jwt;
- 
-     /**
-      * Create a new controller instance.
-      *
-      * @param  \League\OAuth2\Server\AuthorizationServer  $server
-      * @param  \Laravel\Passport\TokenRepository  $tokens
-      * @param  \Lcobucci\JWT\Parser  $jwt
-      */
-     public function __construct(AuthorizationServer $server,
-                                 TokenRepository $tokens,
-                                 JwtParser $jwt)
-     {
-         parent::__construct($server, $tokens, $jwt);
+     parent::__construct($server, $tokens, $jwt);
+ }
+
+ /**
+  * Override the default Laravel Passport token generation
+  *
+  * @param ServerRequestInterface $request
+  * @return array
+  * @throws UserNotFoundException
+  */
+ public function issueToken(ServerRequestInterface $request)
+ {
+     $body = (parent::issueToken($request))->getBody()->__toString();
+     $token = json_decode($body, true);
+
+     if (array_key_exists('error', $token)) {
+         return response()->json([
+             'error' => $token['error'],
+             'status_code' => 401
+         ], 401);
      }
- 
-     /**
-      * Override the default Laravel Passport token generation
-      *
-      * @param ServerRequestInterface $request
-      * @return array
-      * @throws UserNotFoundException
-      */
-     public function issueToken(ServerRequestInterface $request)
-     {
-         $body = (parent::issueToken($request))->getBody()->__toString();
-         $token = json_decode($body, true);
- 
-         if (array_key_exists('error', $token)) {
-             return response()->json([
-                 'error' => $token['error'],
-                 'status_code' => 401
-             ], 401);
-         }
- 
-         try {
- 
-             $user = Customer::where('email', $request->getParsedBody()['username'])->first();
-             return compact('token', 'user');
-             
-         } catch (QueryException $e) {
-              return response()->json([
-                  'error' => $token['error'],
-                  'status_code' => 401
-              ], 401);
-         }
+
+     try {
+
+         $user = Customer::where('email', $request->getParsedBody()['username'])->first();
+         return compact('token', 'user');
+         
+     } catch (QueryException $e) {
+          return response()->json([
+              'error' => $token['error'],
+              'status_code' => 401
+          ], 401);
      }
  }
- ```
- 
- > Note that you need the `Customer` model or any model that you need to authenticate with.
+}
+```
 
  - The request to authenticate must have the `provider` key so the system will know which user is to authenticate with
  
