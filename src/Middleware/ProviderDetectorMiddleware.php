@@ -3,9 +3,8 @@
 namespace Jsdecena\LPM\Middleware;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\ServiceProvider;
 
-class ProviderDetectorMiddleware extends ServiceProvider
+class ProviderDetectorMiddleware
 {
     /**
      * @param Request $request

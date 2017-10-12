@@ -2,7 +2,9 @@
 
 namespace Jsdecena\LPM;
 
-class LaravelPassportMultiAuthServiceProvider
+use Illuminate\Support\ServiceProvider;
+
+class LaravelPassportMultiAuthServiceProvider extends ServiceProvider
 {
     /**
      * Set up the publishing of configuration
