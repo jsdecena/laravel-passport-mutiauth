@@ -202,3 +202,5 @@ Cache-Control: no-cache
 
 grant_type=password&username=test%40email.com&password=secret&provider=customers
 ```
+
+> If the provider parameter is not passed, it will default looking into the `users` table as usual.
