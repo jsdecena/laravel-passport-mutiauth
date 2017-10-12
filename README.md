@@ -103,6 +103,8 @@ class Customer extends Authenticatable
 
 > Note that you need the `Customer` model or any model that you need to authenticate with.
 
+- Migrate the customer table `php artisan vendor:publish --tag=migrations`
+
 - And in your controller: `App\Http\Controllers\Auth\CustomerTokenAuthController.php`
  
 ```
