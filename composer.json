@@ -1,0 +1,28 @@
+{
+  "name": "jsdecena/laravel-passport-multiauth",
+  "description": "Simple laravel passport multiple user authentication",
+  "keywords": ["laravel", "authentication", "auth", "passport", "token", "laravel5", "framework", "package", "user", "multi"],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Jeff Simons Decena",
+      "email": "jeff.decena@yahoo.com"
+    }
+  ],
+  "type": "project",
+  "require": {
+    "vlucas/phpdotenv": "~2.2",
+    "illuminate/http": "^5.3",
+    "laravel/framework": "5.5.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Jsdecena\\LPM\\": "src/"
+    }
+  },
+  "require-dev": {
+    "fzaninotto/faker": "~1.4",
+    "mockery/mockery": "0.9.*",
+    "phpunit/phpunit": "~4.0"
+  }
+}
