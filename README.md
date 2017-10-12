@@ -1,5 +1,9 @@
 # Laravel Passport Multi-Authentication middleware
 
+[![Latest Stable Version](https://poser.pugx.org/jsdecena/laravel-passport-multiauth/v/stable)](https://packagist.org/packages/jsdecena/laravel-passport-multiauth)
+[![Total Downloads](https://poser.pugx.org/jsdecena/laravel-passport-multiauth/downloads)](https://packagist.org/packages/jsdecena/laravel-passport-multiauth)
+[![License](https://poser.pugx.org/jsdecena/laravel-passport-multiauth/license)](https://packagist.org/packages/jsdecena/laravel-passport-multiauth)
+
 #### Laravel passport default behavior is to authenticate your `user` on the `users` table. 
 #### While this is good enough for most of the apps, sometimes we need to tweak it a little bit if there is a new need arises.
 #### I created this middleware because I need a few user groups that would access the app and in every user group there are roles.
@@ -37,7 +41,7 @@
 - Also in your `routes/api.php`
 
 ```
-    Route::post('oauth/token/', 'TokenAuthController@issueToken')
+    Route::post('oauth/token/', 'CustomerTokenAuthController@issueToken')
         ->middleware(['mmda', 'throttle'])
         ->name('issue.token');
 ```
