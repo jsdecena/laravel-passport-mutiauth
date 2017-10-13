@@ -10,7 +10,15 @@
 
 # How to install
 
-- In your terminal, run `composer require jsdecena/laravel-passport-multiauth`
+- In your terminal, run `composer require jsdecena/laravel-passport-multiauth` or add this in your `composer.json`
+
+```
+    "require": {
+        ...
+        "jsdecena/laravel-passport-multiauth": "^0.2",
+        ...
+    },
+```
 
 - Add this line in your `config/app.php`
 
@@ -182,18 +190,6 @@ class CustomerTokenAuthController extends AccessTokenController
          }
          
         $data = $request->getParsedBody();
-        
-        $validator = Validator::make($data, [
-            'username' => 'required',
-            'provider' => 'required',
-        ]);
-        
-        if ($validator->fails()) {
-            return response()->json([
-                'error' => $validator->getMessageBag(),
-                'status_code' => 422
-            ], 422);
-        }
         
         $email = $data['username'];  
            
