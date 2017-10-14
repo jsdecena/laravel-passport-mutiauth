@@ -59,6 +59,23 @@
 - And in the `config/auth.php`
 
 ```
+    'guards' => [
+        'web' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
+
+        'api' => [
+            'driver' => 'passport',
+            'provider' => 'users',
+        ],
+
+        'customers' => [
+            'driver' => 'passport',
+            'provider' => 'customers'
+        ],
+    ],
+    
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
@@ -74,6 +91,8 @@
          ],
     ],
 ```
+
+> In your controller, you can access the user logged in via `auth()->guard('customer')->user()`
 
 - Your `Customer` model should extend with `Authenticatable` and use the `Notifiable` and `HasApiTokens` traits
 
